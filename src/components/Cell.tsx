@@ -8,11 +8,11 @@ const EmptyCell = styled.div`
   background-color: darkgrey;
 `;
 
-const StyledCell = styled(EmptyCell)<Props>`
+export const StyledCell = styled(EmptyCell)<Props>`
   display: flex;
   position: relative;
   background-color: aqua;
-  
+
   :hover {
     cursor: pointer;
     background-color: aliceblue;
@@ -27,15 +27,26 @@ const StyledCell = styled(EmptyCell)<Props>`
 `;
 
 export interface Item {
+  id: number;
   title?: string;
 }
 
 interface Props {
   item: Item;
+  handlePick?: (id: number) => void;
+
 }
 
-const Cell = ({ item }: Props) => {
-  return item?.title ? <StyledCell item={item}/> : <EmptyCell />;
+const Cell = ({ item, handlePick }: Props) => {
+  return item.id ? (
+    <StyledCell
+      onMouseDown={() => (handlePick ? handlePick(item.id) : null)}
+      onMouseOver={() => console.log('mouseOver', item.id)}
+      item={item}
+    />
+  ) : (
+    <EmptyCell />
+  );
 };
 
 export default Cell;
