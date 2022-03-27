@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Cell, { Item, StyledCell } from "./Cell";
 
@@ -29,6 +29,11 @@ const DraggedCell = styled(StyledCell).attrs(
   background-color: red;
 `;
 
+export type MousePosition = {
+  y: number;
+  x: number;
+};
+
 const initialItems = [
   { id: 1, title: "Rubles" },
   { id: 2, title: "Rubles" },
@@ -41,10 +46,13 @@ const initialItems = [
 export const Stash = () => {
   const [items, setItems] = useState<Item[]>(initialItems);
   const [draggedItem, setDraggedItem] = useState<Item>({ id: 0 });
-  const [mousePosition, setMousePosition] = useState<{
-    top: number;
-    left: number;
-  }>({ top: 0, left: 0 });
+  const [mousePosition, setMousePosition] = useState<MousePosition>({
+    y: 0,
+    x: 0,
+  });
+  // const memoizedValue = useMemo(() => {
+  //
+  // }, []);
 
   const handlePick = (id: number) => {
     console.log(id);
@@ -53,15 +61,15 @@ export const Stash = () => {
     setDraggedItem(pickedItem!);
   };
 
-  const handleDrop = (e:any) => {
-    console.log(e)
+  const handleDrop = (e: any) => {
+    console.log(e);
     setDraggedItem({ id: 0 });
   };
 
   const getMousePosition = (e: any) => {
     setMousePosition({
-      top: e.clientY,
-      left: e.clientX,
+      y: e.clientY,
+      x: e.clientX,
     });
   };
 
@@ -71,6 +79,7 @@ export const Stash = () => {
 
     return () => {
       window.removeEventListener("mousemove", getMousePosition);
+      window.removeEventListener("mouseup", handleDrop);
     };
   }, []);
 
@@ -78,15 +87,22 @@ export const Stash = () => {
     <div>
       <StyledStash>
         {items.map((item, idx) => (
-          <Cell item={item} handlePick={handlePick} key={idx} />
+          <Cell
+            item={item}
+            key={idx}
+            handlePick={handlePick}
+            mousePosition={mousePosition}
+            isDragging={!!draggedItem.id}
+          />
         ))}
       </StyledStash>
 
       {draggedItem.id > 0 ? (
         <DraggedCell
           item={draggedItem}
-          top={mousePosition.top}
-          left={mousePosition.left}
+          top={mousePosition.y}
+          left={mousePosition.x}
+          hovered={false}
         />
       ) : null}
     </div>
